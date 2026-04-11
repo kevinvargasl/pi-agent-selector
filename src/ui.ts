@@ -20,7 +20,11 @@ export function buildDuplicateNameSet(profiles: AgentProfile[]): Set<string> {
 		counts.set(key, (counts.get(key) ?? 0) + 1);
 	}
 
-	return new Set(Array.from(counts.entries()).filter(([, count]) => count > 1).map(([name]) => name));
+	const duplicates = new Set<string>();
+	for (const [name, count] of counts) {
+		if (count > 1) duplicates.add(name);
+	}
+	return duplicates;
 }
 
 export async function showAgentPicker(
@@ -79,16 +83,17 @@ export async function showAgentPicker(
 }
 
 export function buildBodyPreview(body: string, maxLines = 10, maxChars = 500): string {
-	if (!body.trim()) return "(no body content)";
+	const trimmed = body.trim();
+	if (!trimmed) return "(no body content)";
 
-	const lines = body.trim().split(/\r?\n/).slice(0, maxLines);
+	const allLines = trimmed.split(/\r?\n/);
+	const lines = allLines.slice(0, maxLines);
 	let preview = lines.join("\n");
 	if (preview.length > maxChars) {
 		preview = `${preview.slice(0, maxChars - 3)}...`;
 	}
 
-	const original = body.trim();
-	if (preview.length < original.length || lines.length < original.split(/\r?\n/).length) {
+	if (lines.length < allLines.length || preview.length < trimmed.length) {
 		preview += "\n...";
 	}
 

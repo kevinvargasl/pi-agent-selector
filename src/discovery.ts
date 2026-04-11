@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { readdirSync, realpathSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { getAgentDir } from "@mariozechner/pi-coding-agent";
 import { parseAgentFile } from "./parser.js";
@@ -34,8 +34,6 @@ export async function discoverAgentProfiles(): Promise<DiscoverAgentProfilesResu
 	const warnings: string[] = [];
 
 	for (const dir of getSupportedAgentDirectories()) {
-		if (!existsSync(dir)) continue;
-
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			if (!entry.name.endsWith(".md")) continue;
 
