@@ -1,6 +1,6 @@
-import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
-import { DynamicBorder } from "@mariozechner/pi-coding-agent";
-import { Box, Container, type SelectItem, SelectList, Text } from "@mariozechner/pi-tui";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { DynamicBorder } from "@earendil-works/pi-coding-agent";
+import { Box, Container, type SelectItem, SelectList, Text } from "@earendil-works/pi-tui";
 import type { AgentProfile } from "./types.js";
 import { CLEAR_SELECTION_VALUE } from "./types.js";
 
@@ -116,12 +116,17 @@ export function formatProfileDetails(profile: AgentProfile): string {
 	return lines.join("\n");
 }
 
-export function registerAgentProfileMessageRenderer(pi: {
-	registerMessageRenderer: (customType: string, renderer: (message: { content: string }, options: { expanded: boolean }, theme: any) => any) => void;
-}) {
+export function registerAgentProfileMessageRenderer(pi: Pick<ExtensionAPI, "registerMessageRenderer">) {
 	pi.registerMessageRenderer("session-agent-profile", (message, _options, theme) => {
 		const box = new Box(1, 1, (text) => theme.bg("customMessageBg", text));
-		box.addChild(new Text(message.content, 0, 0));
+		const content =
+			typeof message.content === "string"
+				? message.content
+				: message.content
+						.filter((part): part is { type: "text"; text: string } => part.type === "text")
+						.map((part) => part.text)
+						.join("\n");
+		box.addChild(new Text(content, 0, 0));
 		return box;
 	});
 }

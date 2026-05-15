@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { basename, extname, resolve } from "node:path";
-import { parseFrontmatter } from "@mariozechner/pi-coding-agent";
+import { parseFrontmatter } from "@earendil-works/pi-coding-agent";
 import type { AgentProfile, ParseAgentFileResult, ThinkingLevel } from "./types.js";
 
 const THINKING_LEVELS: ThinkingLevel[] = ["off", "minimal", "low", "medium", "high", "xhigh"];
@@ -43,7 +43,10 @@ function normalizeTools(value: unknown, warnings: string[], agentName: string): 
 			.map((tool) => tool.trim())
 			.filter(Boolean);
 	} else if (Array.isArray(value)) {
-		tools = value.filter((tool): tool is string => typeof tool === "string").map((tool) => tool.trim()).filter(Boolean);
+		tools = value
+			.filter((tool): tool is string => typeof tool === "string")
+			.map((tool) => tool.trim())
+			.filter(Boolean);
 		if (tools.length !== value.length) {
 			warnings.push(`Ignored non-string tool entries in ${agentName}.`);
 		}

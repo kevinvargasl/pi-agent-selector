@@ -1,6 +1,6 @@
 import { readdirSync, realpathSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { getAgentDir } from "@mariozechner/pi-coding-agent";
+import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import { parseAgentFile } from "./parser.js";
 import type { AgentProfile, DiscoverAgentProfilesResult } from "./types.js";
 
@@ -73,9 +73,13 @@ export async function discoverAgentProfiles(): Promise<DiscoverAgentProfilesResu
 	}
 
 	profiles.sort((left, right) => {
-		const nameCompare = left.name.localeCompare(right.name, undefined, { sensitivity: "base" });
+		const nameCompare = left.name.localeCompare(right.name, undefined, {
+			sensitivity: "base",
+		});
 		if (nameCompare !== 0) return nameCompare;
-		return left.path.localeCompare(right.path, undefined, { sensitivity: "base" });
+		return left.path.localeCompare(right.path, undefined, {
+			sensitivity: "base",
+		});
 	});
 
 	return { profiles, warnings };

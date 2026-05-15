@@ -1,7 +1,9 @@
+import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
+
 export const AGENT_STATE_ENTRY = "session-agent-selector";
 export const CLEAR_SELECTION_VALUE = "__clear_active_agent__";
 
-export type ThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
+export type { ThinkingLevel };
 
 export interface AgentProfile {
 	name: string;

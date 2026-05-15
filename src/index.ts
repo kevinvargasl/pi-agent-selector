@@ -1,15 +1,15 @@
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { discoverAgentProfiles } from "./discovery.js";
 import { getLastPersistedAgentState } from "./state.js";
-import { formatProfileDetails, registerAgentProfileMessageRenderer, showAgentPicker } from "./ui.js";
 import {
 	AGENT_STATE_ENTRY,
-	CLEAR_SELECTION_VALUE,
 	type ActivationResult,
 	type AgentProfile,
+	CLEAR_SELECTION_VALUE,
 	type PersistedAgentState,
 	type ThinkingLevel,
 } from "./types.js";
+import { formatProfileDetails, registerAgentProfileMessageRenderer, showAgentPicker } from "./ui.js";
 
 function persistState(pi: ExtensionAPI, data: PersistedAgentState) {
 	pi.appendEntry<PersistedAgentState>(AGENT_STATE_ENTRY, data);
@@ -106,7 +106,9 @@ export default function sessionAgentSelector(pi: ExtensionAPI) {
 				if (previousModel) {
 					const restored = await pi.setModel(previousModel);
 					if (!restored) {
-						clearWarnings.push(`Could not restore previous model ${previousModelBeforeActivation}: credentials unavailable.`);
+						clearWarnings.push(
+							`Could not restore previous model ${previousModelBeforeActivation}: credentials unavailable.`,
+						);
 					}
 				} else {
 					clearWarnings.push(`Could not restore previous model ${previousModelBeforeActivation}: model not found.`);
@@ -156,7 +158,11 @@ export default function sessionAgentSelector(pi: ExtensionAPI) {
 	async function activateProfile(
 		profile: AgentProfile,
 		ctx: ExtensionContext,
-		options?: { persist?: boolean; notify?: boolean; source?: "user" | "restore" },
+		options?: {
+			persist?: boolean;
+			notify?: boolean;
+			source?: "user" | "restore";
+		},
 	): Promise<ActivationResult> {
 		const warnings: string[] = [];
 		const result: ActivationResult = {
@@ -238,11 +244,13 @@ export default function sessionAgentSelector(pi: ExtensionAPI) {
 	}
 
 	async function restoreActiveProfileFromBranch(ctx: ExtensionContext, profiles?: AgentProfile[]) {
-		const state = getLastPersistedAgentState(ctx.sessionManager.getBranch() as Array<{
-			type?: string;
-			customType?: string;
-			data?: unknown;
-		}>);
+		const state = getLastPersistedAgentState(
+			ctx.sessionManager.getBranch() as Array<{
+				type?: string;
+				customType?: string;
+				data?: unknown;
+			}>,
+		);
 		if (!state || state.action === "clear") {
 			activeProfile = undefined;
 			previousModelBeforeActivation = undefined;
@@ -263,11 +271,18 @@ export default function sessionAgentSelector(pi: ExtensionAPI) {
 			agentAppliedThinking = undefined;
 			updateStatus(ctx, undefined);
 			persistState(pi, { action: "clear", timestamp: Date.now() });
-			ctx.ui.notify(`Previously selected agent is no longer available: ${state.path ?? state.name ?? "unknown"}`, "warning");
+			ctx.ui.notify(
+				`Previously selected agent is no longer available: ${state.path ?? state.name ?? "unknown"}`,
+				"warning",
+			);
 			return;
 		}
 
-		const restoredActivation = await activateProfile(profile, ctx, { persist: false, notify: false, source: "restore" });
+		const restoredActivation = await activateProfile(profile, ctx, {
+			persist: false,
+			notify: false,
+			source: "restore",
+		});
 		previousModelBeforeActivation = state.previousModel;
 		agentAppliedModel = state.agentAppliedModel ?? restoredActivation.appliedModel;
 		previousThinkingBeforeActivation = state.previousThinking;
@@ -288,13 +303,7 @@ export default function sessionAgentSelector(pi: ExtensionAPI) {
 
 		const descriptionLine = activeProfile.description ? `Description: ${activeProfile.description}\n\n` : "";
 		return {
-			systemPrompt:
-				`${event.systemPrompt}\n\n## Active Session Agent Profile\n\n` +
-				`The following profile is active for this session. ` +
-				`Follow it unless it conflicts with higher-priority runtime, safety, or tool instructions.\n\n` +
-				`Profile name: ${activeProfile.name}\n` +
-				descriptionLine +
-				activeProfile.body,
+			systemPrompt: `${event.systemPrompt}\n\n## Active Session Agent Profile\n\nThe following profile is active for this session. Follow it unless it conflicts with higher-priority runtime, safety, or tool instructions.\n\nProfile name: ${activeProfile.name}\n${descriptionLine}${activeProfile.body}`,
 		};
 	});
 
@@ -344,7 +353,9 @@ export default function sessionAgentSelector(pi: ExtensionAPI) {
 					return;
 				}
 
-				showProfileMessage(formatProfileDetails(activeProfile), { path: activeProfile.path });
+				showProfileMessage(formatProfileDetails(activeProfile), {
+					path: activeProfile.path,
+				});
 				return;
 			}
 
